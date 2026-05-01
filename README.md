@@ -36,7 +36,7 @@ fx-monitoring-dashboard/
 ### 1. Python仮想環境の構築（Windows PowerShell）
 
 ```powershell
-cd C:\Users\tomom\APP_DEV\fx-monitoring-dashboard
+cd C:\path\to\fx-monitoring-dashboard
 python -m venv venv
 .\venv\Scripts\Activate.ps1
 pip install -r requirements.txt

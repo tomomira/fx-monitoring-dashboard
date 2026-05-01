@@ -90,7 +90,7 @@ gcloud services enable \
 **Windows PowerShell:**
 ```powershell
 # プロジェクトフォルダに移動
-cd C:\Users\tomom\APP_DEV\fx-monitoring-dashboard
+cd C:\path\to\fx-monitoring-dashboard
 
 # デプロイ実行（初回は3-5分かかります）
 gcloud run jobs deploy fx-mxn-watcher-slack --source . --region asia-northeast1
@@ -100,7 +100,7 @@ gcloud run jobs deploy fx-mxn-watcher-slack --source . --region asia-northeast1
 <summary>🐧 Linux/Mac環境の方はこちら</summary>
 
 ```bash
-cd /mnt/c/Users/tomom/APP_DEV/fx-monitoring-dashboard
+cd /path/to/fx-monitoring-dashboard
 
 gcloud run jobs deploy fx-mxn-watcher-slack \
   --source . \
@@ -279,7 +279,7 @@ ALERT_THRESHOLD = 0.5   # 0.5% → お好みの値に変更（例: 1.0）
 
 変更後、再デプロイ：
 ```powershell
-cd C:\Users\tomom\APP_DEV\fx-monitoring-dashboard
+cd C:\path\to\fx-monitoring-dashboard
 gcloud run jobs deploy fx-mxn-watcher-slack --source . --region asia-northeast1
 ```
 

@@ -1,6 +1,6 @@
 # AI FX市場監視Bot 実装・運用手順書（Slack統合版 - ID015）
 
-**作業場所**: `C:\Users\tomom\APP_DEV\fx-monitoring-dashboard`
+**作業場所**: `C:\path\to\fx-monitoring-dashboard`
 **最終更新**: 2026-01-10
 
 ---
@@ -59,7 +59,7 @@ ID002_ID084_ID015/
 
 ```powershell
 # 作業フォルダに移動
-cd C:\Users\tomom\APP_DEV\fx-monitoring-dashboard
+cd C:\path\to\fx-monitoring-dashboard
 
 # 必要なファイルをコピー
 Copy-Item ..\ID002_PoC_Mexico\main.py .
@@ -292,7 +292,7 @@ gcloud services enable run.googleapis.com artifactregistry.googleapis.com cloudb
 
 ```powershell
 # プロジェクトフォルダに移動
-cd C:\Users\tomom\APP_DEV\fx-monitoring-dashboard
+cd C:\path\to\fx-monitoring-dashboard
 
 # デプロイ実行（.gcloudignoreが必須）
 gcloud run jobs deploy fx-mxn-watcher-slack --source . --region asia-northeast1
