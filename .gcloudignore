@@ -1,0 +1,30 @@
+# Python仮想環境を除外
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# エディタ・IDE設定ファイル
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS生成ファイル
+.DS_Store
+Thumbs.db
+
+# Git関連
+.git/
+.gitignore
+
+# ドキュメント（デプロイ不要）
+README.md
+QUICKSTART.md
+
+# その他
+*.log
+.env
