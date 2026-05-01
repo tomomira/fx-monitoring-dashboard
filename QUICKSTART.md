@@ -31,7 +31,7 @@
 2. 「Incoming Webhookインテグレーションの追加」をクリック
 3. 表示された **Webhook URL** をコピー
    ```
-   https://hooks.slack.com/services/XXXXXXXXX/XXXXXXXXX/XXXXXXXXXXXXXXXXXXXXXXXX
+   https://hooks.slack.com/services/<WORKSPACE_ID>/<CHANNEL_ID>/<TOKEN>
    ```
 4. この URLをメモ帳などに保存（後で環境変数に設定します）
 
