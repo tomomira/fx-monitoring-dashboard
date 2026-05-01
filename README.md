@@ -1,59 +1,95 @@
-# FX Monitoring Dashboard (Slack統合版)
+# FX Monitoring Dashboard (Slack 統合版)
 
-メキシコペソ／円（MXN/JPY）レートを24時間監視し、急変動時にAI（OpenAI GPT-4o-mini）が解説を生成、結果を **Slackへリアルタイム通知** する不労所得運用ダッシュボードです。Google Cloud Run Jobs + Cloud Schedulerで自動実行されます。
+[![Python](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-> 📝 解説記事:[【統合監視】AI市場監視BotをSlackへ接続せよ。エンジニアのための「不労所得・運用ダッシュボード」構築術](https://note.com/lively_hippo6176/n/n4e8e8e0b30d0)
+MXN/JPY レートを 24 時間監視し、急変動時に AI（OpenAI GPT-4o-mini）が解説を生成、結果を **Slack へリアルタイム通知** する不労所得運用ダッシュボードです。Google Cloud Run Jobs + Cloud Scheduler で自動実行されます。
+
+<!-- TODO: screenshot -->
+
+## このツールで解決する問題
+
+メキシコペソ円のスワップ運用では、コンソールを開いていないと相場急変に気づけません。本 Bot はアラート時に Slack へ即時通知し、スマートフォンでも受け取れるようにします。正常時もハートビート信号を定期送信するため、「Bot が止まっていないか」の確認も同一チャンネルで完結します。
+
+---
 
 ## 主な機能
 
-- **MXN/JPY の24時間監視**（yfinance経由）
-- **変動率0.5%以上で自動アラート**
-- **OpenAI GPT-4o-miniによるAI分析**（日本のFXスワップ投資家向けに最適化）
-- **Slackへのリアルタイム通知**
+- **MXN/JPY の 24 時間監視**（yfinance 経由）
+- **変動率 0.5% 以上で自動アラート**
+- **OpenAI GPT-4o-mini による AI 分析**（日本のFXスワップ投資家向けに最適化）
+- **Slack へのリアルタイム通知**
   - 正常時: 緑色のハートビート信号（市場安定の確認）
-  - アラート時: 赤色の警告メッセージ + AI解説
-- **Cloud Run Jobs + Cloud Schedulerで毎時自動実行**
+  - アラート時: 赤色の警告メッセージ + AI 解説
+- **Cloud Run Jobs + Cloud Scheduler で 6 時間毎自動実行**
 
-## ファイル構成
+---
 
+## 技術スタック
+
+| カテゴリ | 技術 |
+|---|---|
+| 言語 | Python 3.11+ |
+| データ取得 | yfinance |
+| AI 分析 | OpenAI GPT-4o-mini |
+| 通知 | Slack Incoming Webhooks |
+| 実行基盤 | Google Cloud Run Jobs |
+| スケジューラ | Google Cloud Scheduler |
+| コンテナ | Docker (python:3.11-slim) |
+
+---
+
+## セットアップ手順
+
+### 1. リポジトリのクローン
+
+```bash
+git clone https://github.com/tomomira/fx-monitoring-dashboard.git
+cd fx-monitoring-dashboard
 ```
-fx-monitoring-dashboard/
-├── main.py                                 # メインプログラム（Slack連携機能含む）
-├── requirements.txt                        # 依存ライブラリ
-├── Dockerfile                              # GCPデプロイ用コンテナ定義
-├── .env.example                            # 環境変数テンプレ
-├── .gitignore
-├── .gcloudignore
-├── QUICKSTART.md                           # クイックスタート手順
-├── README.md                               # このファイル
-├── トラブルシューティング.md
-├── 進捗_次回作業メモ.md
-└── ID015_AI_FX市場監視Bot_実装・運用手順書_Slack統合版.md
-```
 
-## ローカル環境でのテスト
-
-### 1. Python仮想環境の構築（Windows PowerShell）
+### 2. Python 仮想環境の構築
 
 ```powershell
-cd C:\path\to\fx-monitoring-dashboard
+# Windows PowerShell
 python -m venv venv
 .\venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 ```
 
-### 2. 環境変数の設定
+```bash
+# Linux / macOS / WSL
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
 
-`.env.example` を参考に、以下2つを設定:
+### 3. 環境変数の設定
+
+`.env.example` を参考に、以下の 2 つを設定します:
 
 ```powershell
+# Windows PowerShell
 $env:OPENAI_API_KEY="sk-your-openai-api-key"
 $env:SLACK_WEBHOOK_URL="https://hooks.slack.com/services/<WORKSPACE_ID>/<CHANNEL_ID>/<TOKEN>"
 ```
 
-> Slack Webhook URL未設定の場合、Slack通知はスキップされコンソール出力のみになります。
+```bash
+# Linux / macOS / WSL
+export OPENAI_API_KEY="sk-your-openai-api-key"
+export SLACK_WEBHOOK_URL="https://hooks.slack.com/services/<WORKSPACE_ID>/<CHANNEL_ID>/<TOKEN>"
+```
 
-### 3. テスト実行
+> `SLACK_WEBHOOK_URL` 未設定の場合、Slack 通知はスキップされコンソール出力のみになります。
+
+### 4. Slack Webhook URL の取得
+
+1. [Slack](https://slack.com/) で対象ワークスペースにログイン
+2. アプリ → 「Incoming Webhooks」を検索 → インストール
+3. 通知先チャンネル（例: `#fx-market-alerts`）を選択
+4. 発行された Webhook URL を環境変数 `SLACK_WEBHOOK_URL` に設定
+
+### 5. ローカル実行
 
 ```powershell
 python main.py
@@ -70,17 +106,12 @@ MXN/JPY Rate: 8.97円 (Change: 0.00%)
 === End of Process ===
 ```
 
-## Slack Webhook URLの取得方法
+---
 
-1. [Slack](https://slack.com/) で対象ワークスペースにログイン
-2. アプリ → 「Incoming Webhooks」を検索 → インストール
-3. 通知先チャンネル（例: `#fx-market-alerts`）を選択
-4. 発行された Webhook URL（`https://hooks.slack.com/services/...`）を環境変数 `SLACK_WEBHOOK_URL` に設定
-
-## GCPへのデプロイ
+## GCP へのデプロイ
 
 ```bash
-# Cloud Run Jobsへデプロイ
+# Cloud Run Jobs へデプロイ
 gcloud run jobs deploy fx-mxn-watcher-slack \
   --source . \
   --region asia-northeast1
@@ -90,7 +121,7 @@ gcloud run jobs update fx-mxn-watcher-slack \
   --set-env-vars OPENAI_API_KEY="<YOUR_KEY>",SLACK_WEBHOOK_URL="<YOUR_WEBHOOK_URL>" \
   --region asia-northeast1
 
-# Cloud Scheduler（6時間毎実行、OAuth認証）
+# Cloud Scheduler（6 時間毎実行、OAuth 認証）
 PROJECT_ID=$(gcloud config get-value project)
 gcloud scheduler jobs create http fx-mxn-watcher-slack-schedule \
   --location=asia-northeast1 \
@@ -101,20 +132,58 @@ gcloud scheduler jobs create http fx-mxn-watcher-slack-schedule \
   --oauth-service-account-email="cloud-scheduler-runner@${PROJECT_ID}.iam.gserviceaccount.com"
 ```
 
-詳細手順は [QUICKSTART.md](./QUICKSTART.md) と [ID015_AI_FX市場監視Bot_実装・運用手順書_Slack統合版.md](./ID015_AI_FX市場監視Bot_実装・運用手順書_Slack統合版.md) を参照。
+詳細は [QUICKSTART.md](./QUICKSTART.md) 参照。
 
-> ⚠️ Cloud Run **Jobs** はOAuth認証が必須（OIDC不可）。
+> Cloud Run **Jobs** は OAuth 認証が必須（OIDC 不可）。詳細は [docs/internal/トラブルシューティング.md](docs/internal/トラブルシューティング.md) 参照。
 
-## Slack通知の例
+---
+
+## アーキテクチャ
+
+```mermaid
+flowchart LR
+    subgraph GCP["Google Cloud"]
+        CS[Cloud Scheduler\n6時間毎]
+        CRJ[Cloud Run Jobs\nfx-mxn-watcher-slack]
+    end
+
+    subgraph Bot["main.py"]
+        FMD[fetch_market_data\nyfinance]
+        AM[analyze_market\n変動率判定]
+        GAA[get_ai_analysis\nGPT-4o-mini]
+        STS[send_to_slack\nWebhook]
+    end
+
+    YF[(Yahoo Finance\nMXNJPY=X)]
+    OAI[(OpenAI API)]
+    SL[(Slack\nWebhook)]
+    LOG[Cloud Logging]
+
+    CS -->|OAuth 認証| CRJ
+    CRJ --> Bot
+    FMD -->|5d / 1h| YF
+    AM -->|変動率 >= 0.5%| GAA
+    GAA --> OAI
+    AM --> STS
+    STS -->|正常: 緑\nアラート: 赤| SL
+    Bot --> LOG
+```
+
+---
+
+## Slack 通知の例
 
 ### 正常時（ハートビート）
+
 ```
 ✅ 資産運用監視レポート: Normal | MXN/JPY: 8.97円 (+0.12%)
 市場は安定推移しています。
 ```
+
 カラー: 緑（#36a64f）
 
 ### アラート時
+
 ```
 🚨 資産運用監視レポート: ALERT | MXN/JPY: 8.45円 (-0.68%)
 MXNJPY=X が 急落（ペソ安） しました！
@@ -126,35 +195,69 @@ MXNJPY=X が 急落（ペソ安） しました！
 スワップ投資家は維持率の確認が必要だ。短期的には8.40円付近が
 サポートラインとなる可能性がある。
 ```
+
 カラー: 赤（#eb4034）
 
-## トラブルシューティング
+---
 
-### Slack通知が送信されない
-- `SLACK_WEBHOOK_URL` が正しく設定されているか確認
-- Webhook URL の有効期限・有効性を確認
-- ログに `[!] SLACK_WEBHOOK_URL is not set.` と表示される場合は環境変数が未設定
+## ディレクトリ構成
 
-### AI分析エラー
-- `OPENAI_API_KEY` が正しく設定されているか確認
-- OpenAI APIの残高を確認
+```
+fx-monitoring-dashboard/
+├── main.py                 # メインプログラム（Slack 連携機能含む）
+├── requirements.txt        # 依存ライブラリ
+├── Dockerfile              # GCP デプロイ用コンテナ定義
+├── .env.example            # 環境変数テンプレート
+├── .gitignore
+├── .gcloudignore           # Cloud Build 除外設定
+├── QUICKSTART.md           # クイックスタート手順
+├── LICENSE
+└── docs/
+    └── internal/           # 社内運用ドキュメント（外部読者向けでない）
+        ├── README.md
+        ├── トラブルシューティング.md
+        ├── 進捗_次回作業メモ.md
+        └── ID015_AI_FX市場監視Bot_実装・運用手順書_Slack統合版.md
+```
 
-### yfinanceでデータ取得エラー
-- Python 3.11以上を使用しているか確認
-- インターネット接続を確認
-
-詳細は [トラブルシューティング.md](./トラブルシューティング.md) を参照。
+---
 
 ## 運用コスト
 
-- **GCP**: 無料枠内（月額 ¥0）
-- **OpenAI API**: 月額数十円程度（GPT-4o-mini）
-- **Slack**: 無料プランで利用可能
+| サービス | 費用 |
+|---|---|
+| Google Cloud Run Jobs | 無料枠内（月額 ¥0） |
+| Google Cloud Scheduler | 無料枠内（月額 ¥0） |
+| OpenAI API (GPT-4o-mini) | 月額数十円程度 |
+| Slack | 無料プランで利用可能 |
+
+---
+
+## トラブルシューティング要約
+
+| 症状 | 原因 | 対処 |
+|---|---|---|
+| Slack 通知が届かない | `SLACK_WEBHOOK_URL` 未設定または Webhook 無効 | 環境変数を確認 / 新 URL を発行 |
+| Cloud Scheduler が 401 エラー | OIDC 認証を誤って設定 | OAuth 認証で Scheduler を再作成 |
+| デプロイ時 WinError 1920 | venv が Cloud Build に混入 | `.gcloudignore` で `venv/` を除外 |
+| Scheduler 経由で環境変数が未反映 | キャッシュの問題 | Scheduler を再作成 or 次回自動実行を待つ |
+
+詳細は [docs/internal/トラブルシューティング.md](docs/internal/トラブルシューティング.md) 参照。
+
+---
 
 ## 関連プロジェクト
 
-- [ai-market-watchdog-mxn](https://github.com/tomomira/ai-market-watchdog-mxn) — Slack無し版（本プロジェクトのベース）
+- [ai-market-watchdog-mxn](https://github.com/tomomira/ai-market-watchdog-mxn) — Slack なし版（本プロジェクトのベース）
+
+---
+
+## 解説記事
+
+> 📝 [【統合監視】AI市場監視BotをSlackへ接続せよ。エンジニアのための「不労所得・運用ダッシュボード」構築術](https://note.com/lively_hippo6176/n/n4e8e8e0b30d0)
+
+---
 
 ## ライセンス
 
-MIT License — 詳細は [LICENSE](./LICENSE) を参照
+MIT License — 詳細は [LICENSE](LICENSE) 参照。
